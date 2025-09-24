@@ -11,10 +11,13 @@ public class PlayerController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private PlayerStateController stateController;
-    [SerializeField] private PlayerAttackController playerAttackController;
 
+    [Header("Attack References")]
+    [SerializeField] private CursorController cursorController;
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private GameObject meleeHitboxPrefab;
 
-   [Header("Movement Settings")]
+    [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float attackMoveReduction = 0.5f; // reduce speed while attacking
     [SerializeField] private float attackMoveSpeed = 1f;
@@ -33,6 +36,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
 
+    [Header("Attack Settings")]
+    [SerializeField] private float attackRange = 2f;
+    [SerializeField] private float attackRate = 1f;
+    [SerializeField] private float attackDuration = 5f;
+
+  //  private float nextAttackTime = 0f;
+
+    private PlayerStateController playerStateController;
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
@@ -40,9 +51,12 @@ public class PlayerController : MonoBehaviour
     private float jumpHoldTimer = 0f;
     private bool isDashing = false;
     private bool dashOnCooldown = false;
+    private Vector3 inputDir;
+
 
     private void Awake()
     {
+
         controller = GetComponent<CharacterController>();
         if (cameraTransform == null && Camera.main != null)
             cameraTransform = Camera.main.transform;
@@ -50,11 +64,23 @@ public class PlayerController : MonoBehaviour
         if (stateController == null)
             stateController = GetComponent<PlayerStateController>();
 
-        if (playerAttackController == null)
+        if (playerStateController == null)
         {
-            playerAttackController = GetComponent <PlayerAttackController>();
+            playerStateController = GetComponent<PlayerStateController>();
+        }
+
+
+        
+        if (isGrounded) 
+            stateController.SetState(PlayerState.Idle);
+
+        if (inputDir.magnitude < 0.1f)
+        {
+            if (isGrounded) stateController.SetState(PlayerState.Idle);
+            return;
         }
     }
+    
 
     private void Update()
     {
@@ -64,22 +90,16 @@ public class PlayerController : MonoBehaviour
         HandleGravity();
         HandleJump();
         HandleDash();
+        HandleAttack();
     }
 
     #region Movement
     private void HandleMovement()
     {
-        // Instead of blocking all movement, just reduce speed if attacking
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-        Vector3 inputDir = new Vector3(h, 0f, v).normalized;
-
-        if (inputDir.magnitude < 0.1f)
-        {
-            if (isGrounded) stateController.SetState(PlayerState.Idle);
-            return;
-        }
-
+        // Instead of blocking all movement, just reduce speed if attacking
+        inputDir = new Vector3(h, 0f, v).normalized;
         float speed = moveSpeed;
 
         // Apply attack reduction but don't block movement
@@ -89,29 +109,27 @@ public class PlayerController : MonoBehaviour
         float controlFactor = isGrounded ? 1f : airControl;
         controller.Move(inputDir * speed * controlFactor * Time.deltaTime);
 
-        // Rotate smoothly
-        Quaternion targetRotation = Quaternion.LookRotation(inputDir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+       
+        // Rotate smoothly and limit rotation when attacking
+
+        if (inputDir != Vector3.zero && playerStateController.CanRotate())
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(inputDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
 
         if (isGrounded && stateController.CurrentState != PlayerState.Attacking)
         {
             stateController.SetState(PlayerState.Moving);
         }
 
-        // reduce move speed until attack is done
+        // reduce move speed until attack is done and stop rotation
         if (stateController.CurrentState == PlayerState.Attacking)
         {
-            StartCoroutine(WaitForEndOfAttack());
             speed = attackMoveReduction;
         }
     }
-    IEnumerator WaitForEndOfAttack()
-    {
-        Debug.Log("Waiting...");
-        yield return new WaitForSeconds(playerAttackController.AttackDuration);
-        if (isGrounded) stateController.SetState(PlayerState.Moving);
-        Debug.Log("Done waiting!");
-    }
+    
 
     #endregion
 
@@ -187,5 +205,46 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashCooldown);
         dashOnCooldown = false;
     }
+    #endregion
+
+    #region Attack
+
+    private void HandleAttack()
+    {
+        if (!stateController.CanAttack() ) return;
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Vector3 targetPosition = cursorController.GetCursorWorldPosition();
+            Vector3 direction = (targetPosition - transform.position).normalized;
+            direction.y = 0f;
+
+            transform.forward = direction;
+            stateController.SetState(PlayerState.Attacking);
+
+            SpawnMeleeHitbox(direction);
+            StartCoroutine(EndAttackCoroutine());
+        }
+    }
+
+    private void SpawnMeleeHitbox(Vector3 direction)
+    {
+        if (attackPoint == null || meleeHitboxPrefab == null) return;
+
+        Vector3 spawnPos = attackPoint.position + direction * attackRange * 0.5f;
+        GameObject hitbox = Instantiate(meleeHitboxPrefab, spawnPos, Quaternion.LookRotation(direction));
+
+        hitbox.transform.localScale = new Vector3(attackRange, 1f, attackRange);
+        Destroy(hitbox, attackDuration); // matches your previous duration
+    }
+
+    private IEnumerator EndAttackCoroutine()
+    {
+        yield return new WaitForSeconds(attackDuration); // attack duration
+        Debug.Log("ESPERA TERMINADA");
+        if (stateController.CurrentState == PlayerState.Attacking)
+            stateController.SetState(PlayerState.Idle);
+    }
+
     #endregion
 }

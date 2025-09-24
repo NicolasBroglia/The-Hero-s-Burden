@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!4 &151364258 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4352016515724578030, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+  m_PrefabInstance: {fileID: 3998459535212796119}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -785,6 +790,14 @@ PrefabInstance:
       value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 1934235485921882768, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+      propertyPath: attackPoint
+      value: 
+      objectReference: {fileID: 151364258}
+    - target: {fileID: 1934235485921882768, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+      propertyPath: attackDuration
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1934235485921882768, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
       propertyPath: cameraTransform
       value: 
       objectReference: {fileID: 330585546}
@@ -792,9 +805,29 @@ PrefabInstance:
       propertyPath: stateController
       value: 
       objectReference: {fileID: 1011850222}
+    - target: {fileID: 1934235485921882768, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+      propertyPath: cursorController
+      value: 
+      objectReference: {fileID: 884347893}
+    - target: {fileID: 1934235485921882768, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+      propertyPath: meleeHitboxPrefab
+      value: 
+      objectReference: {fileID: 5300778220407576987, guid: d1d4a75d6682b954b9ad3a32345d26ef, type: 3}
+    - target: {fileID: 1934235485921882768, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+      propertyPath: attackMoveReduction
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1934235485921882768, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+      propertyPath: playerAttackController
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4324999086099303640, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4324999086099303640, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
       propertyPath: attackDuration
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4324999086099303640, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
       propertyPath: stateController
@@ -852,7 +885,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4324999086099303640, guid: a92b44f793ed52d4984b26573be74e8b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

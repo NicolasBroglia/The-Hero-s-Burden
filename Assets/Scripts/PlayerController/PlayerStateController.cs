@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerStateController : MonoBehaviour
@@ -24,6 +25,7 @@ public class PlayerStateController : MonoBehaviour
             case PlayerState.Dashing:
                 break;
         }
+        Debug.Log(CurrentState);
     }
 
     private void ExitState(PlayerState state)
@@ -38,5 +40,8 @@ public class PlayerStateController : MonoBehaviour
     }
 
     public bool CanMove() => CurrentState != PlayerState.Attacking && CurrentState != PlayerState.Dashing;
+
+    public bool CanRotate() => CurrentState != PlayerState.Attacking; //&& CurrentState != PlayerState.Idle;
+
     public bool CanAttack() => CurrentState != PlayerState.Dashing;
 }

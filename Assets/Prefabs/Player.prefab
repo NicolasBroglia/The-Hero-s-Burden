@@ -265,8 +265,11 @@ MonoBehaviour:
   airControl: 0.3
   cameraTransform: {fileID: 0}
   stateController: {fileID: 0}
+  playerAttackController: {fileID: 0}
   moveSpeed: 5
   attackMoveReduction: 0.5
+  attackMoveSpeed: 1
+  rotationSpeed: 10
   minJumpHeight: 1
   maxJumpHeight: 1.5
   maxJumpHoldTime: 0.25
@@ -274,6 +277,12 @@ MonoBehaviour:
   dashDistance: 4
   dashDuration: 0.5
   dashCooldown: 1
+  attackRange: 2
+  attackRate: 1
+  attackDuration: 5
+  cursorController: {fileID: 0}
+  attackPoint: {fileID: 0}
+  meleeHitboxPrefab: {fileID: 0}
 --- !u!114 &4324999086099303640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,6 +301,7 @@ MonoBehaviour:
   meleeHitboxPrefab: {fileID: 0}
   attackRange: 2
   attackRate: 1
+  attackDuration: 5
 --- !u!114 &4983400204828080191
 MonoBehaviour:
   m_ObjectHideFlags: 0
